@@ -6,6 +6,7 @@ from crewai_tools import FirecrawlScrapeWebsiteTool
 from .tools import search_web_tool
 import os
 
+
 def get_groq_key():
     try:
         import streamlit as st
@@ -13,26 +14,30 @@ def get_groq_key():
     except Exception:
         return os.getenv("GROQ_API_KEY")
 
+
 llm_config = {
-    "model": "groq/openai/gpt-oss-20b",
+    "model": "groq/openai\\/gpt-oss-120b",
     "api_key": get_groq_key(),
     "temperature": 0.2,
 }
+
 
 def create_scout_agent():
     return Agent(
         role="Opportunity Scout",
         goal=(
-            "Find recent (last 30-60 days) construction project awards, tenders, and teaming "
+            "Find recent construction project awards, tenders, and teaming "
             "opportunities in {country} that match the scope: {project_types}. "
             "Focus on MAIN CONTRACTOR AWARD ANNOUNCEMENTS and MAJOR TENDER PORTALS "
-            "where subcontracting packages will be needed."
+            "where subcontracting packages will be needed. "
+            "Only return opportunities PUBLISHED in the last 30 days."
         ),
         backstory=(
             "You are a veteran construction market intelligence analyst in the Middle East. "
             "You know that a subcontractor finds work through main-contractor awards, "
             "not just government tenders. You scour MEED, Construction Week, Zawya Projects, "
-            "Etimad, and news sources. You return raw snippets with source URLs."
+            "Etimad, and news sources. You ONLY return recent items and you always "
+            "record the publication date. If you cannot verify the date, you discard the item."
         ),
         tools=[search_web_tool, FirecrawlScrapeWebsiteTool()],
         llm=llm_config,
@@ -41,18 +46,23 @@ def create_scout_agent():
         max_iter=5,
     )
 
+
 def create_extractor_agent():
     return Agent(
         role="Data Extractor",
         goal=(
             "From the raw snippets provided, extract for EACH opportunity: "
-            "Project Name, Client/Principal, Main Contractor (if any), Location, "
-            "Estimated Value (or range), Project Date/Status, Source URL, and a brief scope summary. "
-            "Return a clean JSON array. Mark value_type as OFFICIAL, ESTIMATED, or UNKNOWN."
+            "project_name, principal, main_contractor, location, estimated_value, "
+            "value_type (OFFICIAL/ESTIMATED/UNKNOWN), publication_date, source_url, "
+            "source_title, verbatim_quote, scope_summary. "
+            "Return a clean JSON array. DROP any opportunity older than 30 days. "
+            "DROP any opportunity without a real source URL."
         ),
         backstory=(
-            "You are a meticulous data engineer. You never invent facts. If a field is missing, "
-            "you mark it 'Not Disclosed'. You always include the source URL so the reader can verify."
+            "You are a meticulous data engineer. You never invent facts. If a field is "
+            "missing, you mark it 'Not Disclosed'. If a date is missing or older than "
+            "30 days, you drop the item entirely. You always include the source URL "
+            "verbatim so the reader can verify."
         ),
         tools=[],
         llm=llm_config,
@@ -61,13 +71,15 @@ def create_extractor_agent():
         max_iter=3,
     )
 
+
 def create_scorer_agent():
     return Agent(
         role="Fit Scorer & Rationale Writer",
         goal=(
             "For EACH extracted opportunity, score the match against the company profile "
             "on a scale of 1-5. Provide a 'Why It Matches' rationale with specific evidence. "
-            "Only include opportunities with a score of 4 or 5 in the final report. "
+            "Only include opportunities with a score of 4 or 5. "
+            "Every card must display the publication date. "
             "Format the final output as a professional HTML email digest."
         ),
         backstory=(
