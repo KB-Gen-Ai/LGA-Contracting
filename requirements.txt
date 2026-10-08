@@ -1,0 +1,8 @@
+crewai[tools]
+streamlit
+groq
+firecrawl-py
+python-dotenv
+pydantic
+beautifulsoup4
+requests
