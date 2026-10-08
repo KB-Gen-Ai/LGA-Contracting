@@ -1,0 +1,39 @@
+name: Daily Lead Generation
+
+on:
+  schedule:
+    # Runs at 04:00 UTC = 07:00 Saudi Time (UTC+3)
+    - cron: '0 4 * * *'
+  workflow_dispatch:  # Allows manual trigger from the Actions tab
+
+jobs:
+  run-lga:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run LGA script
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
+          RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
+          LGA_COUNTRY: ${{ secrets.LGA_COUNTRY }}
+          LGA_PROJECT_TYPES: ${{ secrets.LGA_PROJECT_TYPES }}
+          LGA_MIN_VALUE: ${{ secrets.LGA_MIN_VALUE }}
+          LGA_MAX_RESULTS: ${{ secrets.LGA_MAX_RESULTS }}
+        run: python main.py
