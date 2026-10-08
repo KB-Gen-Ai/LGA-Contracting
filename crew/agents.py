@@ -14,7 +14,7 @@ def get_groq_key():
         return os.getenv("GROQ_API_KEY")
 
 llm_config = {
-    "model": "groq/gpt-oss-120b",
+    "model": "groq/openai/gpt-oss-20b",
     "api_key": get_groq_key(),
     "temperature": 0.2,
 }
