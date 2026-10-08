@@ -1,3 +1,6 @@
+import litellm
+litellm.drop_params = True
+
 import streamlit as st
 from crew.crew import run_lead_generation_crew
 import os
