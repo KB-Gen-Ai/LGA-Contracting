@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from .agents import create_scout_agent, create_extractor_agent, create_scorer_agent
 
 
-def create_scout_task(agent, country, project_types, min_value, max_results, days_back=30):
+def create_scout_task(agent, country, project_types, min_value, max_results, days_back=90):
     today = datetime.utcnow().date()
     cutoff = today - timedelta(days=days_back)
     current_year = today.year
