@@ -1,6 +1,3 @@
-import crewai.llms.cache as _crewai_cache
-_crewai_cache.mark_cache_breakpoint = lambda msg: msg
-
 from crewai import Agent
 from crewai_tools import FirecrawlScrapeWebsiteTool
 from .tools import search_web_tool
@@ -16,9 +13,12 @@ def get_groq_key():
 
 
 llm_config = {
-    "model": "groq/openai/openai/gpt-oss-120b",
+    "model": "openai/openai/gpt-oss-120b",
+    "base_url": "https://api.groq.com/openai/v1",
     "api_key": get_groq_key(),
     "temperature": 0.2,
+    "custom_openai": True,
+    "is_litellm": False,
 }
 
 
