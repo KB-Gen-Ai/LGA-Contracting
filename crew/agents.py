@@ -1,3 +1,6 @@
+import crewai.llms.cache as _crewai_cache
+_crewai_cache.mark_cache_breakpoint = lambda msg: msg
+
 from crewai import Agent
 from crewai_tools import FirecrawlScrapeWebsiteTool
 from .tools import search_web_tool
