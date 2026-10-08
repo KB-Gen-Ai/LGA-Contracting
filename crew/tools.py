@@ -1,21 +1,30 @@
-from crewai_tools import BaseTool
-from pydantic import Field
+from crewai.tools import BaseTool          # ← FIXED: was crewai_tools
+from pydantic import BaseModel, Field      # ← FIXED: import BaseModel
 from typing import Type
 import requests
 from bs4 import BeautifulSoup
 
-class WebSearchToolSchema(BaseTool):
+
+class WebSearchToolSchema(BaseModel):      # ← FIXED: was (BaseTool)
+    """Input schema for WebSearchTool."""
     query: str = Field(..., description="The search query.")
+
 
 class WebSearchTool(BaseTool):
     name: str = "Web Search Tool"
-    description: str = "Searches the web using DuckDuckGo for a given query and returns top 5 results with snippets and URLs."
-    args_schema: Type[WebSearchToolSchema] = WebSearchToolSchema
+    description: str = (
+        "Searches the web using DuckDuckGo for a given query and returns "
+        "top 5 results with snippets and URLs."
+    )
+    args_schema: Type[BaseModel] = WebSearchToolSchema   # ← type hint fixed
 
     def _run(self, query: str) -> str:
         url = "https://html.duckduckgo.com/html/"
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36"
+            )
         }
         try:
             resp = requests.post(url, data={"q": query}, headers=headers, timeout=15)
@@ -37,5 +46,6 @@ class WebSearchTool(BaseTool):
             return "\n---\n".join(results)
         except Exception as e:
             return f"Search failed: {str(e)}"
+
 
 search_web_tool = WebSearchTool()
