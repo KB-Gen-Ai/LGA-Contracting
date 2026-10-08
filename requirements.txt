@@ -1,6 +1,5 @@
-crewai[tools,litellm]
+crewai[tools,openai]
 streamlit
-groq
 firecrawl-py
 python-dotenv
 pydantic
