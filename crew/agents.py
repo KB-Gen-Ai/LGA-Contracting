@@ -16,7 +16,7 @@ def get_groq_key():
 
 
 llm_config = {
-    "model": "groq/openai\\/gpt-oss-120b",
+    "model": "groq/openai/openai/gpt-oss-120b",
     "api_key": get_groq_key(),
     "temperature": 0.2,
 }
